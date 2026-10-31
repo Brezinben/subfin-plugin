@@ -4,6 +4,7 @@ using System.Linq;
 using Jellyfin.Data.Enums;
 using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Entities.Audio;
+using MediaBrowser.Model.Entities;
 
 namespace Jellyfin.Plugin.Subsonic.Mappers;
 
@@ -145,7 +146,10 @@ public static class ItemMapper
             ["artistId"] = artistId ?? "",
             ["displayArtist"] = primaryArtist,
             ["displayAlbumArtist"] = primaryArtist,
-            ["coverArt"] = $"al-{effectiveAlbumId}",
+            // A song outside any album would point at its folder, which has no image.
+            ["coverArt"] = song.AlbumEntity is null && song.HasImage(ImageType.Primary)
+                ? song.Id.ToString("N")
+                : $"al-{effectiveAlbumId}",
             ["duration"] = duration,
             ["bitRate"] = bitRate,
             ["track"] = song.IndexNumber ?? 0,
